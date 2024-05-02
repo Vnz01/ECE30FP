@@ -67,6 +67,8 @@ FindTail:
 	b		loop
 
 	done:
+	// can also use mov, but this just sets x1 to have the address of x0
+	add		x1, x0, xzr
 	// load the old parent register values and delete stack
 	ldur	fp, [sp, #0]
 	ldur	lr, [sp, #8]
