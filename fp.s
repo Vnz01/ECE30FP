@@ -47,6 +47,32 @@ FindTail:
 	// output:
 	// x1: address of (pointer to) the first symbol of symbol array
 
+	// allocate stack 32 bytes, parent FP at 0, link register at 8, x0 at 16
+	subi	sp, sp, #32
+	stur	fp, [sp, #0]
+	addi	fp, sp, #24
+	stur	lr, [sp, #8]
+	stur	x0, [sp, #16]
+
+	loop:
+	// load array[i] into x2
+	ldur	x2, [x0, #0]
+	// put into x3, value in x2 + 1
+	addi	x3, x2, #1
+	// if it is zero which means x2 or the address of x0 is at -1
+	cbz		x3, end
+
+	// move to next array value
+	addi	x0, x0, #8
+	b		loop
+
+	done:
+	// load the old parent register values and delete stack
+	ldur	fp, [sp, #0]
+	ldur	lr, [sp, #8]
+	ldur	x0, [sp, #16]
+	addi	sp, sp, #32	
+
 	br lr
 
 
