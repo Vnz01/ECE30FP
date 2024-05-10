@@ -54,21 +54,19 @@ FindTail:
 	stur	lr, [sp, #8]
 	stur	x0, [sp, #16]
 
-	loop:
-	// load array[i] into x2
-	ldur	x2, [x0, #0]
-	// put into x3, value in x2 + 1
-	addi	x3, x2, #1
-	// if it is zero which means x2 or the address of x0 is at -1
-	cbz		x3, end
+	ldur	x2, [x0, #8] // load x2 with the next value
+	addi	x3,	x2, 1 // check if the next value + 1 is 0
+	cbz		x3, return // if 0 that means we are ath the end so branch to done
+	addi	x0,	x0, #8 // else move to next array element
+	bl		FindTail // branch to find tail
 
-	// move to next array value
-	addi	x0, x0, #8
-	b		loop
+	b		done
 
-	done:
+	return:
 	// can also use mov, but this just sets x1 to have the address of x0
 	add		x1, x0, xzr
+
+	done:
 	// load the old parent register values and delete stack
 	ldur	fp, [sp, #0]
 	ldur	lr, [sp, #8]
@@ -93,6 +91,29 @@ FindMidpoint:
 	// output:
 	// x4: address of (pointer to) the first element of the right-hand side sub-array
 	
+	// might be incorrect implementation I think x0 - x3 should be saved by caller but not sure
+	subi	sp, sp, #48
+	stur	fp, [sp, #0]
+	addi	fp, sp, #40
+	stur	lr, [sp, #8]
+	stur	x0, [sp, #16]
+	stur	x1, [sp, #24]
+	stur	x2, [sp, #32]
+	stur	x3, [sp, #40]
+
+	ldur	x4, [x0, #0]
+	ldur	x5, [x1, #0]
+	loop:
+	subs	xzr,[]
+
+	ldur	fp, [sp, #0]
+	ldur	lr, [sp, #8]
+	ldur	x0, [sp, #16]
+	ldur	x1, [sp, #24]
+	ldur	x2, [sp, #32]
+	ldur	x3, [sp, #40]
+	addi	sp, sp, #48	
+
 	br lr
 
 
