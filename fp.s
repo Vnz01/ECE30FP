@@ -56,17 +56,17 @@ FindTail:
 
 	ldur	x2, [x0, #16] // load x2 with the next value
 	addi	x3,	x2, #1 // check if the next value + 1 is 0
-	cbz		x3, return // if 0 that means we are ath the end so branch to done
+	cbz		x3, returnFindTail // if 0 that means we are ath the end so branch to done
 	addi	x0,	x0, #16 // else move to next array element
 	bl		FindTail // branch to find tail
 
-	b		done
+	b		doneFindTail
 
-	return:
+	returnFindTail:
 	// can also use mov, but this just sets x1 to have the address of x0
 	add		x1, x0, xzr
 
-	done:
+	doneFindTail:
 	// load the old parent register values and delete stack
 	ldur	fp, [sp, #0]
 	ldur	lr, [sp, #8]
@@ -90,8 +90,7 @@ FindMidpoint:
 	
 	// output:
 	// x4: address of (pointer to) the first element of the right-hand side sub-array
-	
-	// might be incorrect implementation I think x0 - x3 should be saved by caller but not sure
+
 	subi	sp, sp, #48
 	stur	fp, [sp, #0]
 	addi	fp, sp, #40
@@ -101,11 +100,38 @@ FindMidpoint:
 	stur	x2, [sp, #32]
 	stur	x3, [sp, #40]
 
-	ldur	x4, [x0, #0]
-	ldur	x5, [x1, #0]
-	loop:
-	subs	xzr,[]
+	// Check if head + 2 == tail, implementation 1
+	addi	x5, x0, #16 // set x5 = head + 2
+	subs	xzr, x5, x1 // set flag for address of x5 - x1
+	b.eq	returnFindMidpoint
 
+	; // Check if head + 2 == tail, implementation 2
+	; ldur	x5, [x0, #16] // load head + 2 into x5
+	; ldur	x6, [x1, #0] // load tail into x6
+	; subs	xzr, x5, x6 // set flag for values x5 - x6
+	; b.eq	returnFindMidpoint
+
+	subs	xzr, x2, x3
+	b.le	ifFindMidpoint
+	ldur	x7, [x1, #8] // load tail + 1 which is the freq
+	add		x3,	x3, x7
+	subi	x1, x1, #16 // move tail - 2
+	b		recurMidpoint
+
+	ifFindMidpoint:
+	ldur	x8, [x0, #8] // load head + 1 which is the freq
+	add		x2,	x2, x8	// add into left sum the freq of symbol
+	addi	x0, x0, #16 // move head + 2
+
+	recurMidpoint:
+	bl		FindMidpoint
+
+	b		doneFindMidpoint
+
+	returnFindMidpoint:
+	add		x4, x1, xzr
+
+	doneFindMidpoint:
 	ldur	fp, [sp, #0]
 	ldur	lr, [sp, #8]
 	ldur	x0, [sp, #16]
