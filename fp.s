@@ -54,10 +54,10 @@ FindTail:
 	stur	lr, [sp, #8]
 	stur	x0, [sp, #16]
 
-	ldur	x2, [x0, #8] // load x2 with the next value
-	addi	x3,	x2, 1 // check if the next value + 1 is 0
+	ldur	x2, [x0, #16] // load x2 with the next value
+	addi	x3,	x2, #1 // check if the next value + 1 is 0
 	cbz		x3, return // if 0 that means we are ath the end so branch to done
-	addi	x0,	x0, #8 // else move to next array element
+	addi	x0,	x0, #16 // else move to next array element
 	bl		FindTail // branch to find tail
 
 	b		done
