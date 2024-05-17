@@ -113,15 +113,17 @@ FindMidpoint:
 
 	subs	xzr, x2, x3
 	b.le	ifFindMidpoint
+
+	subi	x1, x1, #16 // move tail - 2
 	ldur	x7, [x1, #8] // load tail + 1 which is the freq
 	add		x3,	x3, x7
-	subi	x1, x1, #16 // move tail - 2
+	
 	b		recurMidpoint
 
 	ifFindMidpoint:
+	addi	x0, x0, #16 // move head + 2
 	ldur	x8, [x0, #8] // load head + 1 which is the freq
 	add		x2,	x2, x8	// add into left sum the freq of symbol
-	addi	x0, x0, #16 // move head + 2
 
 	recurMidpoint:
 	bl		FindMidpoint
