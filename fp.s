@@ -117,7 +117,7 @@ FindMidpoint:
 	subi	x1, x1, #16 // move tail - 2
 	ldur	x7, [x1, #8] // load tail + 1 which is the freq
 	add		x3,	x3, x7
-	
+
 	b		recurMidpoint
 
 	ifFindMidpoint:
@@ -172,7 +172,31 @@ IsContain:
 
 	// output:
 	// x3: 1 if symbol is found, 0 otherwise
+	ldur	x4, [x0, #0] // load the first symbol into X4
+	ldur 	x5,	[x1, #0] // load the last symbol into X5
 
+	subs	xzr, x4, x5	// check if first symbol greater than last symbol (ERROR CHECKING)
+	b.gt	returnIsntContain // return 0
+
+	loop: // start loop
+
+	ldur	x4, [x0, #0] // update x4
+	subs	xzr, x4, x2 // check if the symbol is equal to the symbol we looking for X2
+	b.eq	returnIsContain // if equal return 1
+
+	addi	x0,	x0,	#16
+
+	subs	xzr, x4, x5
+	b.le	loop
+
+	returnIsntContain:
+	addi	x3,	xzr, #0
+	b		doneIsContain
+
+	returnIsContain:
+	addi	x3, xzr, #1
+
+	doneIsContain:
 	br lr
 
 
