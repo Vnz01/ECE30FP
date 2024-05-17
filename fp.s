@@ -116,21 +116,21 @@ FindMidpoint:
 
 	subi	x1, x1, #16 // move tail - 2
 	ldur	x7, [x1, #8] // load tail + 1 which is the freq
-	add		x3,	x3, x7
+	add		x3,	x3, x7 // add to right sum
 
-	b		recurMidpoint
+	b		recurMidpoint // recurison
 
 	ifFindMidpoint:
 	addi	x0, x0, #16 // move head + 2
 	ldur	x8, [x0, #8] // load head + 1 which is the freq
 	add		x2,	x2, x8	// add into left sum the freq of symbol
 
-	recurMidpoint:
+	recurMidpoint: 
 	bl		FindMidpoint
 
-	b		doneFindMidpoint
+	b		doneFindMidpoint // go straight to done
 
-	returnFindMidpoint:
+	returnFindMidpoint: // give x4 the address of the first value of the right side
 	add		x4, x1, xzr
 
 	doneFindMidpoint:
@@ -172,6 +172,8 @@ IsContain:
 
 	// output:
 	// x3: 1 if symbol is found, 0 otherwise
+
+
 	ldur	x4, [x0, #0] // load the first symbol into X4
 	ldur 	x5,	[x1, #0] // load the last symbol into X5
 
@@ -184,17 +186,17 @@ IsContain:
 	subs	xzr, x4, x2 // check if the symbol is equal to the symbol we looking for X2
 	b.eq	returnIsContain // if equal return 1
 
-	addi	x0,	x0,	#16
+	addi	x0,	x0,	#16 // head = head + 2
 
-	subs	xzr, x4, x5
-	b.le	loop
+	subs	xzr, x4, x5 // set flags for x4 compared to x5
+	b.le	loop // if less than or equal continue the loop
 
-	returnIsntContain:
+	returnIsntContain: // set x3 to 0 
 	addi	x3,	xzr, #0
-	b		doneIsContain
+	b		doneIsContain // then branch to done
 
-	returnIsContain:
-	addi	x3, xzr, #1
+	returnIsContain: // set x3 to 1
+	addi	x3, xzr, #1 // then continue
 
 	doneIsContain:
 	br lr
