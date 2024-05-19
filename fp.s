@@ -5,7 +5,7 @@
 //////////////////////////
 
 // Partner 1: Venz Burgos, A16230301
-// Partner 2: (your name here), (Student ID here)
+// Partner 2: Giovanni Clark, A17954052
 
 //////////////////////////
 //			//
@@ -155,8 +155,85 @@ Partition:
 	// x0: address of (pointer to) the first symbol of the symbol array
 	// x1: address of (pointer to) the last symbol of the symbol array
 	// x2: address of the first attribute of the current binary tree node
-	
-	br lr
+
+	// start = x9
+	// end = x10
+	// midpoint = x11
+	// offset = x12
+	// left_node and right_node = x13
+
+	// Allocate space for x0, x1, x2, lr, and fp
+	subi sp, sp, #48
+	stur fp, [sp, #0]
+	addi fp, sp, #40
+	stur lr, [sp, #8]
+	stur x0, [sp, #16]
+	stur x1, [sp, #24]
+	stur x2, [sp, #32]
+
+	// Store start pointer in node and end pointer in node+1
+	stur x0, [x2, #0]
+	stur x1, [x2, #8]
+
+	// Load start pointer in node and end pointer in node+1 to new registers 
+	ldur x9, [x2, #0]
+	ldur x10, [x2, #8]
+
+	subs xzr, x9, x10               // Compare x9 (start) and x10 (end)
+	b.ne elsePartition              // If start != end, branch to elsePartition
+	subi x11, xzr, #1               // Temporarily set x11 to NULL
+	stur x11, [x2, #16]             // Store NULL in node+2 (left_node)
+	stur x11, [x2, #24]             // Store NULL in node+3 (right_node)
+	b donePartition
+
+	elsePartition:
+		ldur x2, [x0, #8]           // Load value stored in start+1 to x2 (left_sum) 
+		ldur x3, [x1, #8]           // Load value stored in end+1 to x3 (right_sum)
+		bl FindMidpoint             // Branch to FindMidpoint
+		add x11, xzr, x4			// Load result of FindMidpoint to temporary register x11 (midpoint)
+		stur x11, [sp, #40]         // Store midpoint in the stack
+		ldur x2, [sp, #32]          // Restore original value in x2
+
+		// Offset setup
+		sub x12, x11, x9            // Offset (x12) = midpoint (x11) - start (x9)
+		subi x12, x12, #8           // Offset (x12) = offset - 1
+
+		//Left_node setup
+		addi x13, x2, #32           // Left_node (x13) = node + 4
+		stur x13, [x2, #16]         // Store left_node in node+2
+
+		// Right_node setup
+		lsl x13, x12, #2            // Right_node (x13) = offset (x12) * 4 = offset * 2^2
+		addi x13, x13, #32          // Right_node (x13) = offset (x12) + (4*8)
+		add x13, x13, x2            // Add node address to to the right_node (x13)
+		stur x13, [x2, #24]         // Store result (right_node) in node+3
+
+		// Call Partition(start, midpoint - 2, left_node)
+		ldur x0, [sp, #16]          // Load current start
+		subi x11, x11, #16          // Midpoint = midpoint - 2
+		add x1, xzr, x11            // Make x1 (end) equal to midpoint - 2
+		ldur x2, [sp, #32]          // Load left_node to x2 (node)
+		ldur x2, [x2, #16]          // Node = node+2 (left_node)
+		bl Partition                // Branch to Partition
+
+		// Call Partition(midpoint, end, right_node)
+		ldur x11, [sp, #40]         // Restore midpoint to original value
+		add x0, xzr, x11            // Set x0 (start) equal to midpoint (x11)
+		ldur x1, [sp, #24]          // Load current end
+		ldur x2, [sp, #32]          // Load current node to x2 (node)
+		ldur x2, [x2, #24]			// Node = node+3 (right_node)
+		bl Partition                // Branch to Partition
+
+	donePartition:
+		// Load old parent register values and delete stack 
+		ldur fp, [sp, #0]
+		ldur lr, [sp, #8]
+		ldur x0, [sp, #16]
+		ldur x1, [sp, #24]
+		ldur x2, [sp, #32]
+		addi sp, sp, #48
+
+    	br lr
 
 	
 ////////////////////////
