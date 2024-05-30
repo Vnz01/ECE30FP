@@ -289,4 +289,50 @@ Encode:
 	// x0: the address of (pointer to) the binary tree node 
 	// x2: symbols to encode
 
+	// Allocate space in the frame for fp, lr, x0, and x2
+	subi sp, sp, #32
+	stur fp, [sp #0]
+	addi fp, fp, #24
+	stur lr, [sp, #8]
+	stur x0, [sp, #16]
+	stur x2. [sp, #24]
+
+	// Load value in node+2 to x9 (left_node)
+	ldur x9, [x0, #16]
+	// Load value in node+3 to x10 (right_node)
+	ldur x10, [x0, #24]
+
+	subs xzr, x9, x10		// Compare x9 and x10
+	b.eq doneEncode 		// If x9 == x10, branch to doneEncode
+
+	// Calling IsContain(*left_node, *(left_node+1), symbol)
+	ldur x0, [x9, #0] 		// x0 = *left_node
+	ldur x1, [x9, #8] 		// x1 = *(left_node+1)
+	bl IsContain 			// Branch to IsContain function
+
+	subis xzr, x3, #1 		// Compare x3 (IsContain output) to 1
+	b.ne elseEncode 		// If != 1, branch to elseEncode
+	putint xzr 				// Print 0
+
+	// Calling Encode(left_node, symbol)
+	add x0, xzr, x9 		// x0 = left_node (x9)
+	bl Encode 				// Branch to Encode
+	b doneEncode 			// Branch to doneEncode
+
+	elseEncode:
+		addi x11, xzr, #1 	// x11 = 1
+		putint x11 			// Print 1 (x11)
+
+		// Calling Encode(right_node, symbol)
+		add x0, xzr, x10 	// x0 = right_node (x10)
+		bl Encode 			// Branch to Encode
+
+	doneEncode:
+		// Load old parent register values and delete stack
+		ldur fp, [sp, #0]
+		ldur lr, [sp, #8]
+		ldur x0, [sp, #16]
+		ldur x2, [sp, #24]
+		addi sp, sp #32
+
 	br lr
