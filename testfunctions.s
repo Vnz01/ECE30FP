@@ -135,8 +135,12 @@ Partition:
 	stur	x0, [x2, #0] // store start in node ptr
 	stur	x1, [x2, #8] // store end in node ptr + 1
 
+	// load start and end
+	ldur	x10, [x2, #0]
+	ldur	x11, [x2, #8]
+
 	// check the if conditional if start is == to end
-	subs	xzr, x1, x0
+	subs	xzr, x10, x11
 	b.ne	elsePartition // branch to else if it is not equal
 
 	subi	x9, xzr, #1
@@ -151,13 +155,10 @@ Partition:
 	ldur	x2, [sp, #32] // reload the x2 value
 	stur	x4,	[sp, #40] // store midpoint
 
-	// load start and end
-	ldur	x10, [x2, #0]
-	ldur	x11, [x2, #0]
-
-	add		x13, x4, xzr // load the midpoint to x13
-	sub		x13, x13, x10 // subtract start from midpoint
+	sub		x13, x4, x10 // subtract start from midpoint
 	subi	x13, x13, #8 // subtract midpoint by 1
+
+	// x13 is our offset
 
 	addi	x14, x2, #32 // left node = node + 4
 	lsl		x15, x13, #2 // multiply offset by 4
@@ -170,8 +171,10 @@ Partition:
 	// set x1 to midpoint - 2
 	// set x2 to left node
 
+	ldur	x0, [sp, #16]
 	subi	x1, x4, #16
-	add		x2, xzr, x14
+	ldur	x2, [sp, #32]
+	ldur	x2, [x2, #16]
 
 	bl Partition
 
@@ -179,9 +182,10 @@ Partition:
 	// set x1 to end
 	// set x2 to right node
 
-	add		x0, xzr, x4
+	ldur	x0, [sp, #40]
 	ldur	x1, [sp, #24]
-	add		x2, xzr, x15
+	ldur	x2, [sp, #32]
+	ldur	x2, [x2, #24]
 
 	bl Partition
 
