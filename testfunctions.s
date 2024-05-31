@@ -149,10 +149,11 @@ Partition:
 	ldur	x3, [x1, #8] // load x3 with end + 1
 	bl		FindMidpoint // call Find midpoint with our input values
 	ldur	x2, [sp, #32] // reload the x2 value
+	stur	x4,	[sp, #40] // store midpoint
 
 	// load start and end
-	ldur	x10, [x0, #0]
-	ldur	x11, [x1, #0]
+	ldur	x10, [x2, #0]
+	ldur	x11, [x2, #0]
 
 	add		x13, x4, xzr // load the midpoint to x13
 	sub		x13, x13, x10 // subtract start from midpoint
@@ -253,7 +254,7 @@ Encode:
 	addi fp, fp, #24
 	stur lr, [sp, #8]
 	stur x0, [sp, #16]
-	stur x2. [sp, #24]
+	stur x2, [sp, #24]
 
 	// Load value in node+2 to x9 (left_node)
 	ldur x9, [x0, #16]
