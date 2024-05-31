@@ -295,7 +295,7 @@ Encode:
 	addi fp, fp, #24
 	stur lr, [sp, #8]
 	stur x0, [sp, #16]
-	stur x2. [sp, #24]
+	stur x2, [sp, #24]
 
 	// Load value in node+2 to x9 (left_node)
 	ldur x9, [x0, #16]
