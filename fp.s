@@ -105,11 +105,11 @@ FindMidpoint:
 	subs	xzr, x5, x1 // set flag for address of x5 - x1
 	b.eq	returnFindMidpoint
 
-	; // Check if head + 2 == tail, implementation 2
-	; ldur	x5, [x0, #16] // load head + 2 into x5
-	; ldur	x6, [x1, #0] // load tail into x6
-	; subs	xzr, x5, x6 // set flag for values x5 - x6
-	; b.eq	returnFindMidpoint
+	// // Check if head + 2 == tail, implementation 2
+	// ldur	x5, [x0, #16] // load head + 2 into x5
+	// ldur	x6, [x1, #0] // load tail into x6
+	// subs	xzr, x5, x6 // set flag for values x5 - x6
+	// b.eq	returnFindMidpoint
 
 	subs	xzr, x2, x3
 	b.le	ifFindMidpoint
@@ -266,7 +266,7 @@ IsContain:
 	addi	x0,	x0,	#16 // head = head + 2
 
 	subs	xzr, x4, x5 // set flags for x4 compared to x5
-	b.le	loop // if less than or equal continue the loop
+	b.lt	loop // if less than or equal continue the loop
 
 	returnIsntContain: // set x3 to 0 
 	addi	x3,	xzr, #0
